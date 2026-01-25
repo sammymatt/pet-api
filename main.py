@@ -102,3 +102,38 @@ async def create_user(user: UserCreate, db: AsyncSession = Depends(get_db)):
 async def get_user_pets(user_id: int, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Pet).where(Pet.user_id == user_id))
     return result.scalars().all()
+
+from models import PetWeight
+from dtos.requests.weight import WeightCreate
+from dtos.responses.weight import WeightResponse
+
+@app.post("/pets/{pet_id}/weights", response_model=WeightResponse, status_code=status.HTTP_201_CREATED)
+async def add_pet_weight(pet_id: int, weight_data: WeightCreate, db: AsyncSession = Depends(get_db)):
+    # Verify pet exists
+    pet_result = await db.execute(select(Pet).where(Pet.id == pet_id))
+    pet = pet_result.scalar_one_or_none()
+    if pet is None:
+        raise HTTPException(status_code=404, detail="pet cant be found")
+    
+    new_weight = PetWeight(
+        weight=weight_data.weight,
+        notes=weight_data.notes,
+        pet_id=pet_id
+    )
+    db.add(new_weight)
+    await db.commit()
+    await db.refresh(new_weight)
+    return new_weight
+
+@app.get("/pets/{pet_id}/weights", response_model=List[WeightResponse])
+async def get_pet_weights(pet_id: int, db: AsyncSession = Depends(get_db)):
+    # Verify pet exists
+    pet_result = await db.execute(select(Pet).where(Pet.id == pet_id))
+    pet = pet_result.scalar_one_or_none()
+    if pet is None:
+        raise HTTPException(status_code=404, detail="pet cant be found")
+    
+    result = await db.execute(
+        select(PetWeight).where(PetWeight.pet_id == pet_id).order_by(PetWeight.recorded_at.desc())
+    )
+    return result.scalars().all()

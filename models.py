@@ -26,3 +26,17 @@ class Pet(Base):
     user_id = Column(Integer, ForeignKey("users.id"))
 
     owner = relationship("User", back_populates="pets")
+
+from datetime import datetime
+from sqlalchemy import DateTime
+
+class PetWeight(Base):
+    __tablename__ = "pet_weights"
+
+    id = Column(Integer, primary_key=True, index=True)
+    weight = Column(Float, nullable=False)
+    recorded_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    notes = Column(String)
+    pet_id = Column(Integer, ForeignKey("pets.id"), nullable=False)
+
+    pet = relationship("Pet", backref="weight_entries")
