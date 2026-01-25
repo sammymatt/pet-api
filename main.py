@@ -64,6 +64,24 @@ async def delete_pet(pet_id: int, db: AsyncSession = Depends(get_db)):
     await db.commit()
     return None
 
+from dtos.requests.pet_update import PetUpdate
+
+@app.patch("/pets/{pet_id}", response_model=PetResponse)
+async def update_pet(pet_id: int, pet_update: PetUpdate, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Pet).where(Pet.id == pet_id))
+    pet = result.scalar_one_or_none()
+    if pet is None:
+        raise HTTPException(status_code=404, detail="pet cant be found")
+    
+    # Update only provided fields
+    update_data = pet_update.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(pet, field, value)
+    
+    await db.commit()
+    await db.refresh(pet)
+    return pet
+
 @app.post("/users", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def create_user(user: UserCreate, db: AsyncSession = Depends(get_db)):
     new_user = User(
