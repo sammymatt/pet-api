@@ -53,6 +53,17 @@ async def get_pet(pet_id: int, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=404, detail="pet cant be found")
     return pet
 
+@app.delete("/pets/{pet_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_pet(pet_id: int, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Pet).where(Pet.id == pet_id))
+    pet = result.scalar_one_or_none()
+    if pet is None:
+        raise HTTPException(status_code=404, detail="pet cant be found")
+    
+    await db.delete(pet)
+    await db.commit()
+    return None
+
 @app.post("/users", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def create_user(user: UserCreate, db: AsyncSession = Depends(get_db)):
     new_user = User(
