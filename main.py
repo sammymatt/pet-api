@@ -17,8 +17,14 @@ async def get_db():
         yield session
 
 
-@app.post("/pets", response_model=PetResponse, status_code=status.HTTP_201_CREATED)
-async def create_pet(pet: PetCreate, db: AsyncSession = Depends(get_db)):
+@app.post("/users/{user_id}/pets", response_model=PetResponse, status_code=status.HTTP_201_CREATED)
+async def create_pet(user_id: int, pet: PetCreate, db: AsyncSession = Depends(get_db)):
+    # Verify user exists
+    user_result = await db.execute(select(User).where(User.id == user_id))
+    user = user_result.scalar_one_or_none()
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    
     new_pet = Pet(
         name=pet.name, 
         species=pet.species, 
@@ -26,7 +32,8 @@ async def create_pet(pet: PetCreate, db: AsyncSession = Depends(get_db)):
         description=pet.description,
         gender=pet.gender,
         weight=pet.weight,
-        color=pet.color
+        color=pet.color,
+        user_id=user_id
     )
     db.add(new_pet)
     await db.commit()
