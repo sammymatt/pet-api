@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 from typing import Optional
+from datetime import date
 
 class PetCreate(BaseModel):
     name: str
@@ -9,3 +10,4 @@ class PetCreate(BaseModel):
     gender: Optional[str] = None
     weight: Optional[float] = Field(None, gt=0)
     color: Optional[str] = None
+    birthday: Optional[date] = None
