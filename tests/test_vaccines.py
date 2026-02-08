@@ -85,3 +85,42 @@ async def test_delete_vaccine(client):
 
     response = await client.get(f"/vaccines/{vaccine_id}")
     assert response.status_code == 404
+
+
+async def test_create_vaccine_with_frequency(client):
+    pet_id = await create_pet(client)
+    response = await client.post(f"/pets/{pet_id}/vaccines", json={
+        "name": "Rabies",
+        "administered_date": "2024-01-15",
+        "frequency": "yearly"
+    })
+    assert response.status_code == 201
+    assert response.json()["frequency"] == "yearly"
+
+
+async def test_create_vaccine_with_up_to_date(client):
+    pet_id = await create_pet(client)
+    response = await client.post(f"/pets/{pet_id}/vaccines", json={
+        "name": "Rabies",
+        "administered_date": "2024-01-15",
+        "up_to_date": True
+    })
+    assert response.status_code == 201
+    assert response.json()["up_to_date"] == True
+
+
+async def test_update_vaccine_frequency_and_up_to_date(client):
+    pet_id = await create_pet(client)
+    create_response = await client.post(f"/pets/{pet_id}/vaccines", json={
+        "name": "Rabies",
+        "administered_date": "2024-01-15"
+    })
+    vaccine_id = create_response.json()["id"]
+
+    response = await client.patch(f"/vaccines/{vaccine_id}", json={
+        "frequency": "annually",
+        "up_to_date": False
+    })
+    assert response.status_code == 200
+    assert response.json()["frequency"] == "annually"
+    assert response.json()["up_to_date"] == False
