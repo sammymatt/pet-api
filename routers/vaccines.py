@@ -23,6 +23,8 @@ async def create_vaccine(pet_id: int, vaccine_data: VaccineCreate, db: AsyncSess
         administered_date=vaccine_data.administered_date,
         next_due_date=vaccine_data.next_due_date,
         administered_by=vaccine_data.administered_by,
+        frequency=vaccine_data.frequency,
+        up_to_date=vaccine_data.up_to_date,
         notes=vaccine_data.notes,
         pet_id=pet_id
     )

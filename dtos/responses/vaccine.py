@@ -9,6 +9,8 @@ class VaccineResponse(BaseModel):
     administered_date: date
     next_due_date: Optional[date] = None
     administered_by: Optional[str] = None
+    frequency: Optional[str] = None
+    up_to_date: Optional[bool] = None
     notes: Optional[str] = None
     pet_id: int
 

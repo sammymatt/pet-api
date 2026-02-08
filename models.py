@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, Date, DateTime
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, Date, DateTime, Boolean
 from sqlalchemy.orm import relationship
 from db import Base
 
@@ -49,6 +49,8 @@ class Vaccine(Base):
     administered_date = Column(Date, nullable=False)
     next_due_date = Column(Date)
     administered_by = Column(String)
+    frequency = Column(String)
+    up_to_date = Column(Boolean)
     notes = Column(String)
     pet_id = Column(Integer, ForeignKey("pets.id"), nullable=False)
 
