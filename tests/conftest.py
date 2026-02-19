@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
 from db import Base
 from dependencies import get_db
+from limiter import limiter
 from main import app
 
 
@@ -28,6 +29,12 @@ async def test_db():
 
     app.dependency_overrides.clear()
     await engine.dispose()
+
+
+@pytest.fixture(autouse=True)
+def reset_rate_limiter():
+    yield
+    limiter.reset()
 
 
 @pytest.fixture

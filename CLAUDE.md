@@ -44,9 +44,10 @@ python seed.py
 
 ### Core Components
 
-- **main.py**: FastAPI app with all route handlers - endpoints for pets, users, and weight tracking
-- **models.py**: SQLAlchemy ORM models (User, Pet, PetWeight) with relationships
+- **main.py**: FastAPI app setup, middleware registration (SlowAPI rate limiting), and router includes
+- **models.py**: SQLAlchemy ORM models (User, Pet, PetWeight, FeatureRequest) with relationships
 - **db.py**: Async database engine and session configuration using asyncpg
+- **limiter.py**: slowapi Limiter instance keyed by client IP (in-memory storage)
 
 ### Data Transfer Objects
 
@@ -76,3 +77,9 @@ python seed.py
 - `DELETE /pets/{pet_id}` - Delete pet
 - `POST /pets/{pet_id}/weights` - Add weight record
 - `GET /pets/{pet_id}/weights` - Get weight history
+- `POST /feature-requests` - Create feature request (rate limited: 5/min per IP)
+- `GET /feature-requests` - List feature requests (sorted by votes)
+- `GET /feature-requests/{id}` - Get feature request by ID
+- `PATCH /feature-requests/{id}` - Update feature request
+- `POST /feature-requests/{id}/vote` - Vote on feature request (rate limited: 10/min per IP)
+- `DELETE /feature-requests/{id}` - Delete feature request

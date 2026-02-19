@@ -11,3 +11,4 @@ class PetCreate(BaseModel):
     weight: Optional[float] = Field(None, gt=0)
     color: Optional[str] = None
     birthday: Optional[date] = None
+    image_url: Optional[str] = None

@@ -25,6 +25,7 @@ class Pet(Base):
     weight = Column(Float)
     color = Column(String)
     birthday = Column(Date)
+    image_url = Column(String, nullable=True)
     user_id = Column(Integer, ForeignKey("users.id"))
 
     owner = relationship("User", back_populates="pets")
@@ -85,3 +86,14 @@ class Tablet(Base):
     pet_id = Column(Integer, ForeignKey("pets.id"), nullable=False)
 
     pet = relationship("Pet", backref="tablets")
+
+
+class FeatureRequest(Base):
+    __tablename__ = "feature_requests"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, nullable=False)
+    category = Column(String, nullable=False)
+    description = Column(String)
+    votes = Column(Integer, default=0)
+    is_implemented = Column(Boolean, default=False)

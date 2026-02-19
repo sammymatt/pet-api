@@ -12,6 +12,7 @@ class PetResponse(BaseModel):
     weight: Optional[float] = None
     color: Optional[str] = None
     birthday: Optional[date] = None
+    image_url: Optional[str] = None
 
     class Config:
         from_attributes = True

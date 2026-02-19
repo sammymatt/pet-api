@@ -28,6 +28,7 @@ async def create_pet(user_id: int, pet: PetCreate, db: AsyncSession = Depends(ge
         weight=pet.weight,
         color=pet.color,
         birthday=pet.birthday,
+        image_url=pet.image_url,
         user_id=user_id
     )
     db.add(new_pet)
