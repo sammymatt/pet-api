@@ -1,7 +1,10 @@
 import os
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
+from urllib.parse import urlparse, unquote
+
+import psycopg2
+from sqlalchemy import create_engine, engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
@@ -15,8 +18,7 @@ from models import Pet, PetWeight, Vaccine, Appointment, Tablet
 config = context.config
 
 # Override sqlalchemy.url from environment variable if set
-if os.environ.get("ALEMBIC_DATABASE_URL"):
-    config.set_main_option("sqlalchemy.url", os.environ["ALEMBIC_DATABASE_URL"])
+alembic_database_url = os.environ.get("ALEMBIC_DATABASE_URL")
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
@@ -66,11 +68,28 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
-    connectable = engine_from_config(
-        config.get_section(config.config_ini_section, {}),
-        prefix="sqlalchemy.",
-        poolclass=pool.NullPool,
-    )
+    if alembic_database_url:
+        parsed = urlparse(alembic_database_url)
+        db_user = unquote(parsed.username) if parsed.username else None
+        db_pass = unquote(parsed.password) if parsed.password else None
+        db_host = parsed.hostname
+        db_port = parsed.port
+        db_name = parsed.path.lstrip("/")
+
+        connectable = create_engine(
+            "postgresql+psycopg2://",
+            poolclass=pool.NullPool,
+            creator=lambda: psycopg2.connect(
+                user=db_user, password=db_pass,
+                host=db_host, port=db_port, dbname=db_name,
+            ),
+        )
+    else:
+        connectable = engine_from_config(
+            config.get_section(config.config_ini_section, {}),
+            prefix="sqlalchemy.",
+            poolclass=pool.NullPool,
+        )
 
     with connectable.connect() as connection:
         context.configure(
