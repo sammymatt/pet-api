@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
 
@@ -24,7 +25,7 @@ async def create_user(user: UserCreate, db: AsyncSession = Depends(get_db)):
         await db.commit()
         await db.refresh(new_user)
         return new_user
-    except Exception:
+    except IntegrityError:
         await db.rollback()
         raise HTTPException(status_code=400, detail="Email already registered")
 
